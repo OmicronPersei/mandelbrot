@@ -26,7 +26,7 @@ def mandelbrot(c):
 
 # Image size (pixels)
 width = 1920
-height = 1080 
+height = 1080
 
 # #reduce render time for debugging
 # width = 600
@@ -58,19 +58,19 @@ im = Image.new('RGB', (width, height), (0, 0, 0))
 # Assign draw function to a variable for consolidation
 draw = ImageDraw.Draw(im)
 
-max_workers = multiprocessing.cpu_count()
+max_workers = multiprocessing.cpu_count() - 1
+amount_chunks = 100
 print(str(max_workers) + " max workers")
 
 width_chunks = []
-chunk_size = width // max_workers
-for i in range(max_workers):
-	if i == (max_workers - 1):
+chunk_size = width // amount_chunks
+for i in range(amount_chunks):
+	if i == (amount_chunks- 1):
 		width_chunks.append(range(i*chunk_size, width))
 	else:
 		width_chunks.append(range(i*chunk_size, (i+1)*chunk_size))
 
 def process_chunk(chunk_range):
-	print("thread " + str(threading.get_ident()))
 	chunk_results = []
 	for i in chunk_range:
 		# print("executing range " + str(i))
