@@ -25,18 +25,20 @@ def mandelbrot(c):
 	return n
 
 # Image size (pixels)
-width = 1920
-height = 1080
+# width = 1920*3
+# height = 1080*3
+width=10000
+height=10000
 
 # #reduce render time for debugging
 # width = 600
 # height = 400
 
 # Our plane on which we plot the points
-realNeg = -2.15
-realPos = 1.15
-imagiNeg = -1.15
-imagiPos = 1.15
+realNeg = -1.5
+realPos = -1.00
+imagiNeg = 0
+imagiPos = 0.5
 
 # Divide our plane into the number of pixels
 realIncrement = (realPos - realNeg) / width
@@ -59,8 +61,7 @@ im = Image.new('RGB', (width, height), (0, 0, 0))
 draw = ImageDraw.Draw(im)
 
 max_workers = multiprocessing.cpu_count() - 1
-amount_chunks = 100
-print(str(max_workers) + " max workers")
+amount_chunks = 200
 
 width_chunks = []
 chunk_size = width // amount_chunks
@@ -73,7 +74,6 @@ for i in range(amount_chunks):
 def process_chunk(chunk_range):
 	chunk_results = []
 	for i in chunk_range:
-		# print("executing range " + str(i))
 		for j in range(height):
 			c = complex(realPlots[i],imagiPlots[j])
 			# n is returned from the mandelbrot function and assigned to varaible
@@ -92,11 +92,12 @@ def process_chunk(chunk_range):
 def main():
 	with ProcessPoolExecutor(max_workers) as executor:
 		result_chunks = executor.map(process_chunk, width_chunks)
-		for result_chunk in result_chunks:
-			print("result chunk ready")
+		for i,result_chunk in enumerate(result_chunks, 1):
+			print("result chunk {}/{}".format(str(i), str(amount_chunks)))
 			for result in result_chunk:
 				draw.point(result[0], result[1])
 
+	print("writing image...")
 	im.save('output.png', 'PNG')
 	print("--- %s seconds ---" % (time.time() - start_time))
 
