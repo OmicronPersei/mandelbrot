@@ -1,6 +1,8 @@
 #! /usr/bin/python3
 from PIL import Image, ImageDraw
 import random, time
+import multiprocessing
+from multiprocessing import Pool
 
 start_time=time.time()
 z=[None] * 80
@@ -51,6 +53,25 @@ Right now it is set to 0,0,0 ~ a black canvas '''
 im = Image.new('RGB', (width, height), (0, 0, 0))
 # Assign draw function to a variable for consolidation
 draw = ImageDraw.Draw(im)
+
+max_workers = multiprocessing.cpu_count()
+print(str(max_workers) + " max workers")
+
+# def chunks(list, chunk_size):
+# 	chunks = []
+# 	for i in range(0, len(list), chunk_size):
+# 		chunks.append(list[i:i+chunk_size])
+# 	return chunks
+
+# width_chunks = chunks(range(width), max_workers)
+
+width_chunks = []
+chunk_size = width // max_workers
+for i in range(max_workers):
+	if i == (max_workers - 1):
+		width_chunks.append(range(i*chunk_size, width))
+	else:
+		width_chunks.append(range(i*chunk_size, (i+1)*chunk_size))
 
 for i in range(width):
 	for j in range(height):
