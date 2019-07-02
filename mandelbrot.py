@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import random, time
 import multiprocessing
 from multiprocessing.pool import ThreadPool
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import threading
 
 start_time=time.time()
@@ -61,14 +61,6 @@ draw = ImageDraw.Draw(im)
 max_workers = multiprocessing.cpu_count()
 print(str(max_workers) + " max workers")
 
-# def chunks(list, chunk_size):
-# 	chunks = []
-# 	for i in range(0, len(list), chunk_size):
-# 		chunks.append(list[i:i+chunk_size])
-# 	return chunks
-
-# width_chunks = chunks(range(width), max_workers)
-
 width_chunks = []
 chunk_size = width // max_workers
 for i in range(max_workers):
@@ -81,6 +73,7 @@ def process_chunk(chunk_range):
 	print("thread " + str(threading.get_ident()))
 	chunk_results = []
 	for i in chunk_range:
+		# print("executing range " + str(i))
 		for j in range(height):
 			c = complex(realPlots[i],imagiPlots[j])
 			# n is returned from the mandelbrot function and assigned to varaible
@@ -92,15 +85,20 @@ def process_chunk(chunk_range):
 				if n is LOW (like 5), color will be lighter.'''
 				color = (255 - int(n * 3.1875))
 			# draw.point(([i,j]), (color, color, color-random.randint(50,70)))
-			result = (([i,j]), (color, color, color-random.randint(50,70)))
+			result = (([i,j]), (color, color, color))
 			chunk_results.append(result)
 	return chunk_results
 
-executor = ThreadPoolExecutor(max_workers)
-result_chunks = executor.map(process_chunk, width_chunks)
-for result_chunk in result_chunks:
-	for result in result_chunk:
-		draw.point(result[0], result[1])
+def main():
+	with ProcessPoolExecutor(max_workers) as executor:
+		result_chunks = executor.map(process_chunk, width_chunks)
+		for result_chunk in result_chunks:
+			print("result chunk ready")
+			for result in result_chunk:
+				draw.point(result[0], result[1])
 
-im.save('output.png', 'PNG')
-print("--- %s seconds ---" % (time.time() - start_time))
+	im.save('output.png', 'PNG')
+	print("--- %s seconds ---" % (time.time() - start_time))
+
+if __name__ == '__main__':
+	main()
