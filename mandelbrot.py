@@ -8,7 +8,7 @@ import threading
 
 start_time=time.time()
 
-max_iteration_amount = 50
+max_iteration_amount = 100
 
 ''' In order to understand the following code, first look up the Mandlebrot Set
 You will soon come across lots of foreign terms like complex numbers and the complex plane
@@ -29,15 +29,15 @@ def mandelbrot(c):
 # Image size (pixels)
 # width = 1920*3
 # height = 1080*3
-width=2000
-height=2000
+width=8000
+height=8000
 
 # #reduce render time for debugging
 # width = 600
 # height = 400
 
-imageCenter = (-1.19, .305)
-imageWidth=.025
+imageCenter = (-1.195, .295)
+imageWidth=.015
 
 # Our plane on which we plot the points
 realNeg = imageCenter[0]-imageWidth
@@ -65,7 +65,8 @@ im = Image.new('RGB', (width, height), (0, 0, 0))
 # Assign draw function to a variable for consolidation
 draw = ImageDraw.Draw(im)
 
-max_workers = multiprocessing.cpu_count() - 2
+# max_workers = multiprocessing.cpu_count() - 1
+max_workers = 10
 amount_chunks = 200
 
 width_chunks = []
@@ -90,7 +91,7 @@ def process_chunk(chunk_range):
 				if n is LOW (like 5), color will be lighter.'''
 				color = (255 - int(n * (255/max_iteration_amount)))
 			# draw.point(([i,j]), (color, color, color-random.randint(50,70)))
-			result = (([i,j]), (color, color, color))
+			result = (i,j,color)
 			chunk_results.append(result)
 	return chunk_results
 
@@ -100,7 +101,9 @@ def main():
 		for i,result_chunk in enumerate(result_chunks, 1):
 			print("result chunk {}/{}".format(str(i), str(amount_chunks)))
 			for result in result_chunk:
-				draw.point(result[0], result[1])
+				point = [result[0],result[1]]
+				color = (result[2], result[2], result[2])
+				draw.point(point, color)
 
 	print("writing image...")
 	im.save('output.png', 'PNG')
