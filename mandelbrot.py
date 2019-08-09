@@ -8,7 +8,7 @@ import threading
 
 start_time=time.time()
 
-max_iteration_amount = 100
+max_iteration_amount = 500
 
 ''' In order to understand the following code, first look up the Mandlebrot Set
 You will soon come across lots of foreign terms like complex numbers and the complex plane
@@ -36,8 +36,8 @@ height=8000
 # width = 600
 # height = 400
 
-imageCenter = (-1.195, .295)
-imageWidth=.015
+imageCenter = (-1.19654, 0.28880)
+imageWidth=.0005
 
 # Our plane on which we plot the points
 realNeg = imageCenter[0]-imageWidth
@@ -79,6 +79,7 @@ for i in range(amount_chunks):
 
 def process_chunk(chunk_range):
 	chunk_results = []
+	color_factor = (255/max_iteration_amount)
 	for i in chunk_range:
 		for j in range(height):
 			c = complex(realPlots[i],imagiPlots[j])
@@ -89,9 +90,8 @@ def process_chunk(chunk_range):
 			if n != max_iteration_amount:
 				''' Depending on n, if it is a HIGH VALUE (like 60) color will be darker(255 = white) (0 = black)
 				if n is LOW (like 5), color will be lighter.'''
-				color = (255 - int(n * (255/max_iteration_amount)))
-			# draw.point(([i,j]), (color, color, color-random.randint(50,70)))
-			result = (i,j,color)
+				color = (255 - int(n * color_factor))
+			result = [i,j,color]
 			chunk_results.append(result)
 	return chunk_results
 
